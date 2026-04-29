@@ -1,20 +1,47 @@
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.pyc
-.env
-*.log
-state/*.json
-!state/.gitkeep
-openclaw.json
-*.py.bak
-*.swp
-.DS_Store
-.git/
-fixtures/
+*.pyo
+*.pyd
+
+# Distribution / packaging
+.Python
 *.egg-info/
+dist/
+build/
+
+# Test & coverage
 .pytest_cache/
 .coverage
-*.so
-*.md.bak
-workspace/
+htmlcov/
+
+# Environment & secrets
+.env
+.env.*
+*.log
+openclaw.json
+
+# State files (local only)
+state/*.json
+!state/.gitkeep
+
+# IDE & editor
+.DS_Store
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Temporary files
 tmp_*
 audit_*
+*.py.bak
+*.bak
+
+# Build artifacts
+*.so
+*.egg
+
+# Large data fixtures
+fixtures/
