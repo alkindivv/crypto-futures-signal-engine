@@ -1,0 +1,77 @@
+name: Automated Crypto Signal Scan
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  scan-and-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Configure git
+        run: |
+          git config --global user.name "MiMo Bot"
+          git config --global user.email "mimo-bot@xiaomi.example.com"
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          pip install --quiet requests websockets python-dotenv
+
+      - name: Run automated scan
+        env:
+          BINANCE_API_KEY: ${{ secrets.BINANCE_API_KEY }}
+          BINANCE_API_SECRET: ${{ secrets.BINANCE_API_SECRET }}
+        run: |
+          cd ${{ github.workspace }}/scripts
+          
+          python3 public_market_data.py automation-cycle \
+            --kind watchlist \
+            --output-mode compact \
+            --top 10 \
+            --max-symbols 10 \
+            --enrich-top 5 \
+            --tv-top 0
+
+      - name: Generate scan summary
+        run: |
+          cd ${{ github.workspace }}
+          
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M UTC")
+          
+          cat > scan_summary.md << 'EOF'
+          # Automated Scan Summary
+
+          **Generated:** $TIMESTAMP  
+          **Workflow:** Automated Crypto Signal Scan (every 5 min)  
+          **Repository:** ${{ github.repository }}  
+          **Run:** ${{ github.run_id }}
+          EOF
+
+      - name: Commit and push results
+        run: |
+          cd ${{ github.workspace }}
+          
+          TIMESTAMP=$(date -u +"%Y-%m-%d_%H%M")
+          
+          git add -A
+          
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Auto scan $TIMESTAMP UTC [skip ci]"
+            git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git master
+            echo "Changes committed and pushed at $TIMESTAMP"
+          fi
