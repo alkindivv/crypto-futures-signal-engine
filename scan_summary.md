@@ -3,4 +3,4 @@
 **Generated:** $TIMESTAMP  
 **Workflow:** Automated Crypto Signal Scan (every 5 min)  
 **Repository:** alkindivv/crypto-futures-signal-engine  
-**Run:** 25161777893
+**Run:** 25165003462
